@@ -16,7 +16,7 @@ const CONFIG = {
   maxTradesPerDay: 50,
   maxLossPerDay: 25,
   minConfidence: 0.55,
-  dryRun: true,
+  dryRun: false,          // 🔴 LIVE TRADING
   checkInterval: 15000,
   learningRate: 0.1,      // How fast to adjust strategy weights
   markets: ['KXBTC15M', 'KXETH15M'], // 15-min BTC + ETH (5m not available)
