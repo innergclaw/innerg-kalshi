@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InnerG Kalshi | Prediction AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111111;
+      --bg-tertiary: #1a1a1a;
+      --green-primary: #00ff88;
+      --green-secondary: #00cc6a;
+      --green-dim: #00ff8833;
+      --text-primary: #ffffff;
+      --text-secondary: #888888;
+      --text-dim: #555555;
+      --border-color: #2a2a2a;
+      --danger: #ff4444;
+      --warning: #ffaa00;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Terminal Glow Effect */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(ellipse at 50% 0%, var(--green-dim) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 50%, rgba(0, 255, 136, 0.05) 0%, transparent 40%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 30px;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--green-primary), var(--green-secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--bg-primary);
+      box-shadow: 0 0 20px var(--green-dim);
+    }
+
+    .logo-text h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--green-primary);
+      text-shadow: 0 0 10px var(--green-dim);
+    }
+
+    .logo-text p {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .live-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .live-toggle:hover {
+      border-color: var(--green-primary);
+    }
+
+    .live-toggle.active {
+      border-color: var(--green-primary);
+      box-shadow: 0 0 15px var(--green-dim);
+    }
+
+    .live-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      transition: all 0.3s ease;
+    }
+
+    .live-toggle.active .live-dot {
+      background: var(--green-primary);
+      box-shadow: 0 0 10px var(--green-primary);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .live-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .live-toggle.active .live-text {
+      color: var(--green-primary);
+    }
+
+    /* Main Grid */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Card Base */
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: var(--green-dim);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .card-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .stat-value.positive {
+      color: var(--green-primary);
+    }
+
+    .stat-value.negative {
+      color: var(--danger);
+    }
+
+    .stat-change {
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .stat-change.positive {
+      color: var(--green-primary);
+    }
+
+    .stat-change.negative {
+      color: var(--danger);
+    }
+
+    /* Timer Section */
+    .timer-section {
+      text-align: center;
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+
+    .timer-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+
+    .timer-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 72px;
+      font-weight: 700;
+      color: var(--green-primary);
+      text-shadow: 0 0 30px var(--green-dim);
+      letter-spacing: 5px;
+    }
+
+    .timer-progress {
+      width: 100%;
+      height: 4px;
+      background: var(--bg-tertiary);
+      border-radius: 2px;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+
+    .timer-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green-primary), var(--green-secondary));
+      border-radius: 2px;
+      transition: width 1s linear;
+      box-shadow: 0 0 10px var(--green-primary);
+    }
+
+    /* Market Info */
+    .market-info {
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .market-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .market-price {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .current-price {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--green-primary);
+    }
+
+    .price-change {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+
+    .price-change.up {
+      background: rgba(0, 255, 136, 0.1);
+      color: var(--green-primary);
+    }
+
+    .price-change.down {
+      background: rgba(255, 68, 68, 0.1);
+      color: var(--danger);
+    }
+
+    /* Trading Buttons */
+    .trade-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .trade-btn {
+      padding: 20px;
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      background: var(--bg-tertiary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .trade-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .trade-btn.yes:hover {
+      border-color: var(--green-primary);
+      box-shadow: 0 0 20px var(--green-dim);
+    }
+
+    .trade-btn.no:hover {
+      border-color: var(--danger);
+      box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+    }
+
+    .trade-btn.yes.selected {
+      border-color: var(--green-primary);
+      background: rgba(0, 255, 136, 0.1);
+    }
+
+    .trade-btn.no.selected {
+      border-color: var(--danger);
+      background: rgba(255, 68, 68, 0.1);
+    }
+
+    .trade-btn-label {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 5px;
+    }
+
+    .trade-btn.yes .trade-btn-label {
+      color: var(--green-primary);
+    }
+
+    .trade-btn.no .trade-btn-label {
+      color: var(--danger);
+    }
+
+    .trade-btn-price {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    /* Orderbook */
+    .orderbook {
+      margin-bottom: 20px;
+    }
+
+    .orderbook-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .orderbook-side {
+      flex: 1;
+    }
+
+    .orderbook-side-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+
+    .orderbook-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      margin-bottom: 2px;
+      border-radius: 4px;
+    }
+
+    .orderbook-row.yes {
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.1));
+    }
+
+    .orderbook-row.no {
+      background: linear-gradient(90deg, rgba(255, 68, 68, 0.1), transparent);
+      text-align: right;
+    }
+
+    /* Trade Log */
+    .trade-log {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .trade-entry {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 13px;
+    }
+
+    .trade-entry:last-child {
+      border-bottom: none;
+    }
+
+    .trade-type {
+      font-weight: 600;
+    }
+
+    .trade-type.yes {
+      color: var(--green-primary);
+    }
+
+    .trade-type.no {
+      color: var(--danger);
+    }
+
+    .trade-result {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .trade-result.win {
+      color: var(--green-primary);
+    }
+
+    .trade-result.loss {
+      color: var(--danger);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Balance Card */
+    .balance-card {
+      text-align: center;
+    }
+
+    .balance-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      margin-bottom: 5px;
+    }
+
+    .balance-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--green-primary);
+    }
+
+    /* Timeframe Selector */
+    .timeframe-selector {
+      display: flex;
+      gap: 10px;
+    }
+
+    .timeframe-btn {
+      flex: 1;
+      padding: 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .timeframe-btn:hover {
+      border-color: var(--green-dim);
+    }
+
+    .timeframe-btn.active {
+      border-color: var(--green-primary);
+      color: var(--green-primary);
+      box-shadow: 0 0 15px var(--green-dim);
+    }
+
+    /* Market Selector */
+    .market-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .market-option {
+      padding: 12px 15px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .market-option:hover {
+      border-color: var(--green-dim);
+    }
+
+    .market-option.active {
+      border-color: var(--green-primary);
+      box-shadow: 0 0 10px var(--green-dim);
+    }
+
+    .market-option-name {
+      font-size: 13px;
+    }
+
+    .market-option-price {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* Start Button */
+    .start-btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, var(--green-primary), var(--green-secondary));
+      border: none;
+      border-radius: 12px;
+      color: var(--bg-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px var(--green-dim);
+    }
+
+    .start-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Terminal Output */
+    .terminal {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .terminal-line {
+      margin-bottom: 5px;
+      color: var(--text-secondary);
+    }
+
+    .terminal-line.success {
+      color: var(--green-primary);
+    }
+
+    .terminal-line.error {
+      color: var(--danger);
+    }
+
+    .terminal-line.info {
+      color: var(--warning);
+    }
+
+    .terminal-prefix {
+      color: var(--green-primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .timer-display {
+        font-size: 48px;
+      }
+      
+      .header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo-section">
+        <div class="logo-avatar">IG</div>
+        <div class="logo-text">
+          <h1>InnerG Kalshi</h1>
+          <p>Prediction AI Training</p>
+        </div>
+      </div>
+      <div class="live-toggle" id="liveToggle" onclick="toggleLive()">
+        <div class="live-dot"></div>
+        <span class="live-text">PAPER</span>
+      </div>
+    </header>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Balance</div>
+        <div class="stat-value" id="balance">$1,000.00</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Today's P&L</div>
+        <div class="stat-value positive" id="pnl">+$0.00</div>
+        <div class="stat-change positive" id="pnlPercent">+0.0%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Win Rate</div>
+        <div class="stat-value" id="winRate">0%</div>
+        <div class="stat-change" id="tradesCount">0 trades</div>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+      <!-- Left Column -->
+      <div class="left-column">
+        <!-- Timer -->
+        <div class="card timer-section">
+          <div class="timer-label">Next Candle Close</div>
+          <div class="timer-display" id="timerDisplay">14:59</div>
+          <div class="timer-progress">
+            <div class="timer-progress-bar" id="timerProgress" style="width: 100%"></div>
+          </div>
+        </div>
+
+        <!-- Market Info -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">BTC/USD 15-Min</span>
+            <span style="color: var(--text-dim); font-size: 12px;" id="marketTime">--:--</span>
+          </div>
+          <div class="market-info">
+            <div class="market-title">Will BTC close above current price?</div>
+            <div class="market-price">
+              <span class="current-price" id="btcPrice">$--,---.--</span>
+              <span class="price-change up" id="priceChange">+0.00%</span>
+            </div>
+          </div>
+
+          <!-- Trade Buttons -->
+          <div class="trade-buttons">
+            <button class="trade-btn yes" id="yesBtn" onclick="selectTrade('yes')">
+              <div class="trade-btn-label">Yes ↑</div>
+              <div class="trade-btn-price" id="yesPrice">52¢</div>
+            </button>
+            <button class="trade-btn no" id="noBtn" onclick="selectTrade('no')">
+              <div class="trade-btn-label">No ↓</div>
+              <div class="trade-btn-price" id="noPrice">48¢</div>
+            </button>
+          </div>
+
+          <!-- Orderbook -->
+          <div class="orderbook">
+            <div class="orderbook-header">
+              <div class="orderbook-side">
+                <div class="orderbook-side-title" style="color: var(--green-primary)">YES Bids</div>
+                <div id="yesBids"></div>
+              </div>
+              <div class="orderbook-side">
+                <div class="orderbook-side-title" style="color: var(--danger); text-align: right;">NO Bids</div>
+                <div id="noBids"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trade Log -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Trade Log</span>
+            <span style="color: var(--text-dim); font-size: 11px;" id="logCount">0 entries</span>
+          </div>
+          <div class="trade-log" id="tradeLog">
+            <div class="terminal-line" style="color: var(--text-dim); text-align: center; padding: 20px;">
+              > No trades yet. Start trading to see history.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column / Sidebar -->
+      <div class="sidebar">
+        <!-- Timeframe -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Timeframe</span>
+          </div>
+          <div class="timeframe-selector">
+            <button class="timeframe-btn" onclick="setTimeframe(5)">5m</button>
+            <button class="timeframe-btn active" onclick="setTimeframe(15)">15m</button>
+            <button class="timeframe-btn" onclick="setTimeframe(60)">1h</button>
+          </div>
+        </div>
+
+        <!-- Markets -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Active Markets</span>
+          </div>
+          <div class="market-selector" id="marketList">
+            <div class="market-option active">
+              <span class="market-option-name">BTC Above</span>
+              <span class="market-option-price">52¢ / 48¢</span>
+            </div>
+            <div class="market-option">
+              <span class="market-option-name">BTC Below</span>
+              <span class="market-option-price">48¢ / 52¢</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terminal -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">System Log</span>
+          </div>
+          <div class="terminal" id="terminal">
+            <div class="terminal-line"><span class="terminal-prefix">></span> Initializing InnerG Kalshi...</div>
+            <div class="terminal-line success"><span class="terminal-prefix">></span> System ready</div>
+            <div class="terminal-line info"><span class="terminal-prefix">></span> Paper trading mode active</div>
+          </div>
+        </div>
+
+        <!-- Start Trading -->
+        <button class="start-btn" id="startBtn" onclick="placeTrade()">
+          Place Trade
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let state = {
+      balance: 1000,
+      startingBalance: 1000,
+      pnl: 0,
+      trades: [],
+      wins: 0,
+      losses: 0,
+      timeframe: 15,
+      selectedTrade: null,
+      btcPrice: 96450.00,
+      isLive: false,
+      currentPosition: null
+    };
+
+    // Simulated orderbook data
+    function generateOrderbook() {
+      const yesBase = 50 + (Math.random() * 4 - 2);
+      const noBase = 100 - yesBase;
+      
+      const yesBids = [];
+      const noBids = [];
+      
+      for (let i = 0; i < 5; i++) {
+        yesBids.push({
+          price: Math.round(yesBase - i * 0.5),
+          qty: Math.floor(Math.random() * 500) + 100
+        });
+        noBids.push({
+          price: Math.round(noBase - i * 0.5),
+          qty: Math.floor(Math.random() * 500) + 100
+        });
+      }
+      
+      return { yes: yesBids, no: noBids };
+    }
+
+    // Update orderbook display
+    function updateOrderbook() {
+      const book = generateOrderbook();
+      
+      const yesHtml = book.yes.map(b => 
+        `<div class="orderbook-row yes">
+          <span>${b.price}¢</span>
+          <span>${b.qty}</span>
+        </div>`
+      ).join('');
+      
+      const noHtml = book.no.map(b => 
+        `<div class="orderbook-row no">
+          <span>${b.qty}</span>
+          <span>${b.price}¢</span>
+        </div>`
+      ).join('');
+      
+      document.getElementById('yesBids').innerHTML = yesHtml;
+      document.getElementById('noBids').innerHTML = noHtml;
+      
+      // Update prices
+      document.getElementById('yesPrice').textContent = book.yes[0].price + '¢';
+      document.getElementById('noPrice').textContent = book.no[0].price + '¢';
+    }
+
+    // Update timer
+    function updateTimer() {
+      const now = new Date();
+      const minutes = now.getMinutes();
+      const seconds = now.getSeconds();
+      
+      const tf = state.timeframe;
+      const nextCandle = tf - (minutes % tf);
+      const minsLeft = nextCandle - 1;
+      const secsLeft = 60 - seconds;
+      
+      const display = `${String(minsLeft).padStart(2, '0')}:${String(secsLeft - 1).padStart(2, '0')}`;
+      document.getElementById('timerDisplay').textContent = display;
+      
+      // Progress bar
+      const totalSeconds = tf * 60;
+      const elapsed = (minutes % tf) * 60 + seconds;
+      const progress = ((totalSeconds - elapsed) / totalSeconds) * 100;
+      document.getElementById('timerProgress').style.width = progress + '%';
+      
+      // Market time
+      document.getElementById('marketTime').textContent = 
+        now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Update BTC price (simulated)
+    function updateBtcPrice() {
+      const change = (Math.random() - 0.5) * 100;
+      state.btcPrice += change;
+      
+      const priceEl = document.getElementById('btcPrice');
+      const changeEl = document.getElementById('priceChange');
+      
+      priceEl.textContent = '$' + state.btcPrice.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      
+      const pctChange = ((state.btcPrice - 96450) / 96450 * 100);
+      changeEl.textContent = (pctChange >= 0 ? '+' : '') + pctChange.toFixed(2) + '%';
+      changeEl.className = 'price-change ' + (pctChange >= 0 ? 'up' : 'down');
+    }
+
+    // Select trade direction
+    function selectTrade(direction) {
+      state.selectedTrade = direction;
+      
+      document.getElementById('yesBtn').classList.toggle('selected', direction === 'yes');
+      document.getElementById('noBtn').classList.toggle('selected', direction === 'no');
+      
+      logTerminal(`Selected: ${direction.toUpperCase()}`, 'info');
+    }
+
+    // Place trade
+    function placeTrade() {
+      if (!state.selectedTrade) {
+        logTerminal('Select YES or NO first', 'error');
+        return;
+      }
+      
+      const betAmount = 10; // Fixed bet for paper trading
+      if (state.balance < betAmount) {
+        logTerminal('Insufficient balance', 'error');
+        return;
+      }
+      
+      state.balance -= betAmount;
+      state.currentPosition = {
+        direction: state.selectedTrade,
+        entryPrice: state.btcPrice,
+        amount: betAmount,
+        time: new Date()
+      };
+      
+      updateStats();
+      logTerminal(`Placed ${state.selectedTrade.toUpperCase()} trade @ $${state.btcPrice.toFixed(2)}`, 'success');
+      
+      // Simulate outcome after candle closes
+      const tf = state.timeframe;
+      const now = new Date();
+      const secondsUntilClose = (tf - (now.getMinutes() % tf)) * 60 - now.getSeconds();
+      
+      setTimeout(resolveTrade, Math.min(secondsUntilClose * 1000, 5000)); // For demo, max 5s
+    }
+
+    // Resolve trade
+    function resolveTrade() {
+      if (!state.currentPosition) return;
+      
+      const priceWentUp = state.btcPrice > state.currentPosition.entryPrice;
+      const won = (state.currentPosition.direction === 'yes' && priceWentUp) ||
+                  (state.currentPosition.direction === 'no' && !priceWentUp);
+      
+      const payout = won ? state.currentPosition.amount * 1.9 : 0;
+      state.balance += payout;
+      
+      const trade = {
+        direction: state.currentPosition.direction,
+        entryPrice: state.currentPosition.entryPrice,
+        exitPrice: state.btcPrice,
+        amount: state.currentPosition.amount,
+        payout: payout,
+        won: won,
+        time: state.currentPosition.time
+      };
+      
+      state.trades.push(trade);
+      if (won) state.wins++;
+      else state.losses++;
+      
+      state.pnl = state.balance - state.startingBalance;
+      
+      updateStats();
+      addTradeLog(trade);
+      logTerminal(`Trade ${won ? 'WON' : 'LOST'}: ${won ? '+' : ''}$${(payout - state.currentPosition.amount).toFixed(2)}`, won ? 'success' : 'error');
+      
+      state.currentPosition = null;
+      state.selectedTrade = null;
+      document.getElementById('yesBtn').classList.remove('selected');
+      document.getElementById('noBtn').classList.remove('selected');
+    }
+
+    // Update stats display
+    function updateStats() {
+      document.getElementById('balance').textContent = '$' + state.balance.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      
+      const pnlEl = document.getElementById('pnl');
+      const pnl = state.pnl;
+      pnlEl.textContent = (pnl >= 0 ? '+' : '') + '$' + pnl.toFixed(2);
+      pnlEl.className = 'stat-value ' + (pnl >= 0 ? 'positive' : 'negative');
+      
+      const pnlPct = ((pnl / state.startingBalance) * 100).toFixed(1);
+      const pnlPctEl = document.getElementById('pnlPercent');
+      pnlPctEl.textContent = (pnl >= 0 ? '+' : '') + pnlPct + '%';
+      pnlPctEl.className = 'stat-change ' + (pnl >= 0 ? 'positive' : 'negative');
+      
+      const totalTrades = state.wins + state.losses;
+      const winRate = totalTrades > 0 ? Math.round((state.wins / totalTrades) * 100) : 0;
+      document.getElementById('winRate').textContent = winRate + '%';
+      document.getElementById('tradesCount').textContent = totalTrades + ' trades';
+    }
+
+    // Add trade to log
+    function addTradeLog(trade) {
+      const log = document.getElementById('tradeLog');
+      const entry = document.createElement('div');
+      entry.className = 'trade-entry';
+      
+      const time = trade.time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      const result = trade.won ? '+' : '';
+      const resultClass = trade.won ? 'win' : 'loss';
+      
+      entry.innerHTML = `
+        <div>
+          <span class="trade-type ${trade.direction}">${trade.direction.toUpperCase()}</span>
+          <span style="color: var(--text-dim); margin-left: 10px;">${time}</span>
+        </div>
+        <div class="trade-result ${resultClass}">${result}$${(trade.payout - trade.amount).toFixed(2)}</div>
+      `;
+      
+      if (log.children.length === 1 && log.children[0].textContent.includes('No trades')) {
+        log.innerHTML = '';
+      }
+      
+      log.insertBefore(entry, log.firstChild);
+      document.getElementById('logCount').textContent = state.trades.length + ' entries';
+    }
+
+    // Terminal log
+    function logTerminal(message, type = '') {
+      const terminal = document.getElementById('terminal');
+      const line = document.createElement('div');
+      line.className = 'terminal-line ' + type;
+      line.innerHTML = `<span class="terminal-prefix">></span> ${message}`;
+      terminal.appendChild(line);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    // Toggle live mode
+    function toggleLive() {
+      state.isLive = !state.isLive;
+      const toggle = document.getElementById('liveToggle');
+      toggle.classList.toggle('active', state.isLive);
+      toggle.querySelector('.live-text').textContent = state.isLive ? 'LIVE' : 'PAPER';
+      logTerminal(state.isLive ? 'Switched to LIVE trading' : 'Switched to PAPER trading', 'info');
+    }
+
+    // Set timeframe
+    function setTimeframe(tf) {
+      state.timeframe = tf;
+      document.querySelectorAll('.timeframe-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      logTerminal(`Timeframe set to ${tf}m`, 'info');
+    }
+
+    // Initialize
+    function init() {
+      updateOrderbook();
+      updateTimer();
+      updateBtcPrice();
+      
+      // Update intervals
+      setInterval(updateOrderbook, 2000);
+      setInterval(updateTimer, 1000);
+      setInterval(updateBtcPrice, 3000);
+      
+      logTerminal('Fetching market data...', 'info');
+      setTimeout(() => {
+        logTerminal('Connected to KALSHI API', 'success');
+      }, 1000);
+    }
+
+    init();
+  </script>
+</body>
+</html>
